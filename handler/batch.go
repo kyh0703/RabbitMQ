@@ -3,7 +3,7 @@ package handler
 import (
 	"log"
 
-	rb "../rabbit"
+	rb "github.com/kyh0703/rabbitMQ"
 	"github.com/streadway/amqp"
 )
 
