@@ -1,0 +1,16 @@
+version: '3.2'
+
+services:
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbit
+    restart: always
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq/mnesia
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
