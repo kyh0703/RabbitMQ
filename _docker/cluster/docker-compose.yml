@@ -1,46 +1,57 @@
-version: '3'
+version: '3.2'
 
 services:
 
-  rabbitmq1:
-    image: rabbitmq:3-management
-    hostname: rabbitmq1
+  rabbit1:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbit1
+    hostname: rabbit1
+    restart: always
+    volumes:
+      - ./shared/rabbitmq/1/data:/var/lib/rabbitmq/mnesia
+    ports:
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_ERLANG_COOKIE}
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_DEFAULT_VHOST}
-
-  rabbitmq2:
-    image: rabbitmq:3-management
-    hostname: rabbitmq2
-    depends_on:
-      - rabbitmq1
-    environment:
       - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_ERLANG_COOKIE}
-    volumes:
-      - ./cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh
-    entrypoint: /usr/local/bin/cluster-entrypoint.sh
 
-  rabbitmq3:
-    image: rabbitmq:3-management
-    hostname: rabbitmq3
-    depends_on:
-      - rabbitmq1
+  rabbit2:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbit2
+    hostname: rabbit2
+    restart: always
     environment:
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_DEFAULT_VHOST}
       - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_ERLANG_COOKIE}
-    volumes:
-      - ./cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh
-    entrypoint: /usr/local/bin/cluster-entrypoint.sh
-    
-  haproxy:
-    image: haproxy:1.7
-    volumes:
-      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     depends_on:
-      - rabbitmq1
-      - rabbitmq2
-      - rabbitmq3
+      - rabbit1
     ports:
-      - 15672:15672
-      - 5672:5672
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - ./shared/rabbitmq/2/data:/var/lib/rabbitmq/mnesia
+      - ./pre-entrypoint.sh:/usr/local/bin/pre-entrypoint.sh
+      - ./entrypoint.py:/usr/local/bin/entrypoint.py
+    entrypoint: /usr/local/bin/pre-entrypoint.sh
+
+  rabbit3:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbit3
+    hostname: rabbit3
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_DEFAULT_VHOST}
+      - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_ERLANG_COOKIE}
+    depends_on:
+      - rabbit1
+    ports:
+      - "5674:5672"
+      - "15674:15672"
+    volumes:
+      - ./shared/rabbitmq/3/data:/var/lib/rabbitmq/mnesia
+      - ./pre-entrypoint.sh:/usr/local/bin/pre-entrypoint.sh
+      - ./entrypoint.py:/usr/local/bin/entrypoint.py
+    entrypoint: /usr/local/bin/pre-entrypoint.sh
