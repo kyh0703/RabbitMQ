@@ -55,3 +55,16 @@ services:
       - ./pre-entrypoint.sh:/usr/local/bin/pre-entrypoint.sh
       - ./entrypoint.py:/usr/local/bin/entrypoint.py
     entrypoint: /usr/local/bin/pre-entrypoint.sh
+
+  haproxy:
+    image: haproxy:1.7
+    restart: always
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - rabbit1
+      - rabbit2
+      - rabbit3
+    ports:
+      - 15670:15670
+      - 5670:5670
