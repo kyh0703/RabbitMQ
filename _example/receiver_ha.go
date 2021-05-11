@@ -15,7 +15,7 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5673/")
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -23,13 +23,16 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
+	args := make(amqp.Table)
+	args["x-ha-policy"] = "all"
+
 	q, err := ch.QueueDeclare(
-		"ha.test", // name
+		"test", // name
 		true,         // durable
 		false,        // delete when unused
 		false,        // exclusive
 		false,        // no-wait
-		nil,          // arguments
+		args,          // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 
