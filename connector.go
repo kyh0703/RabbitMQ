@@ -6,7 +6,6 @@ import (
 	"github.com/streadway/amqp"
 )
 
-
 var instance *amqp.Connection
 var once sync.Once
 

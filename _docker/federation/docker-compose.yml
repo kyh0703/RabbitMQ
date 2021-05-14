@@ -1,0 +1,48 @@
+version: '3.2'
+
+services:
+
+  rabbit1:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbit1
+    hostname: rabbit1
+    restart: always
+    volumes:
+      - ./shared/rabbitmq/1/data:/var/lib/rabbitmq/mnesia
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./pre-entrypoint.sh:/usr/local/bin/pre-entrypoint.sh
+      - ./entrypoint-cluster1.py:/usr/local/bin/entrypoint.py
+    entrypoint: /usr/local/bin/pre-entrypoint.sh
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - cluster1
+
+  rabbit2:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbit2
+    hostname: rabbit2
+    volumes:
+      - ./shared/rabbitmq/1/data:/var/lib/rabbitmq/mnesia
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./pre-entrypoint.sh:/usr/local/bin/pre-entrypoint.sh
+      - ./entrypoint-cluster2.py:/usr/local/bin/entrypoint.py
+    entrypoint: /usr/local/bin/pre-entrypoint.sh
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - cluster2
+
+networks:
+    cluster1:
+        driver: bridge
+    cluster2:
+        driver: bridge
