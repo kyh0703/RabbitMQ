@@ -26,7 +26,7 @@ subjects:
 - kind: ServiceAccount
   name: rabbitmq
   namespace: rabbits
-roleRkubectl get storage
+roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: rabbitmq
